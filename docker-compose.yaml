@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+    server:
+        build:
+          context: ./server
+          dockerfile: Dockerfile
+        networks:
+          - backend
+        ports:
+          - 8080:8080
+        volumes:
+          - "./server:/app"
+        depends_on:
+          - mysql
+          - redis
+        environment:
+          MYSQL_APP_USER: developer
+          MYSQL_APP_PASSWORD: development
+          REDIS_ADDR: redis:6379
+          REDIS_PASSWORD: password
+    mysql:
+        build: 
+            context: "./mysql"
+            dockerfile: Dockerfile
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test
+        networks:
+            - backend
+        ports:
+            - 3306:3306
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+        command: --default-authentication-plugin=mysql_native_password
+    redis:
+        build: 
+          context: "./redis"
+          dockerfile: Dockerfile
+        networks:
+            - backend
+        ports:
+            - 6379:6379
+networks:
+    backend:
